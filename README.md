@@ -208,3 +208,55 @@ pip install opencv-python numpy matplotlib
 ---
 
 
+### chose qui marche dans le code et qui sont corect :
+Calibration
+
+fx ≈ fy (1548.73 ≈ 1548.37) → caméra bien symétrique, calibration cohérente
+cx et cy corrects par rapport à la résolution de ton image (1728×3840)
+Taux d'erreur faible sur la reprojection → calibration fiable
+Tu as utilisé 19 images de damier → nombre suffisant pour une bonne calibration
+
+Acquisition des images
+
+Translation purement horizontale gauche → droite ✅
+Baseline mesurée physiquement au mètre ✅
+Les deux images couvrent bien la même scène avec un décalage visible ✅
+
+Détection SIFT
+
+Utilisation de FLANN → méthode rapide et adaptée à SIFT ✅
+Test de ratio de Lowe (0.75) → filtre correctement les mauvais matches ✅
+nfeatures=8000 + contrastThreshold=0.02 → paramètres bien ajustés ✅
+
+Filtrage géométrique
+
+RANSAC sur la matrice fondamentale → élimine les faux matches correctement ✅
+Seuil RANSAC de 3.0 pixels → valeur standard correcte ✅
+Passage de 1596 matches → 528 inliers → taux de filtrage cohérent ✅
+
+Undistortion
+
+Ne pas undistorter les images mais uniquement les points avec cv2.undistortPoints() → solution correcte pour une distorsion forte ✅
+Passage de P=mtx dans undistortPoints → points ramenés dans le repère image ✅
+
+Filtre sur la disparité
+
+Disparités positives uniquement (50 < d < 800px) → physiquement correct pour une translation gauche→droite ✅
+Élimination des points derrière la caméra (Z < 0) ✅
+
+Matrices de projection
+
+P_gauche = K · [I | 0] → caméra gauche = origine du repère monde ✅
+P_droite = K · [I | -B] → décalage de la baseline sur l'axe X ✅
+Utilisation de cv2.triangulatePoints() → fonction correcte ✅
+
+Reconstruction 3D
+
+Z entre 0.35 et 0.80m → cohérent avec les distances réelles mesurées (55–64cm) ✅
+468 points valides → nuage propre et sans aberrations majeures ✅
+Sauvegarde en .xyz avec couleurs RGB → compatible Blender et CloudCompare ✅
+
+Visualisation
+
+Axes correctement orientés (X latéral, Z profondeur, -Y vertical) ✅
+Couleurs récupérées depuis l'image originale ✅
