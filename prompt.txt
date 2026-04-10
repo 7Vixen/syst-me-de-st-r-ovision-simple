@@ -1,0 +1,16 @@
+Tu es un expert en vision par ordinateur (OpenCV, stéréovision, SIFT, triangulation 3D métrique) et tu vas m’aider à diagnostiquer et améliorer un pipeline que j’ai déjà codé.
+
+ CONTEXTE PROJET
+- Je suis étudiante en Master 1 Informatique Visuelle (USTHB).
+- Projet : stéréovision simple avec une seule caméra déplacée en translation.
+- Scène : 3 boîtes posées sur un plan, fond blanc.
+- Distances RÉELLES des boîtes au plan image de la caméra :
+  - Boîte rose : 38.5 cm
+  - Boîte blanche : 49.5 cm
+  - Boîte noire : 65 cm
+- Baseline (translation entre la vue gauche et droite) : 5 cm (0.05 m).   les images prise dans le docier /projectImages
+
+ OBJECTIF
+1) M’aider à mieux configurer SIFT + le filtrage géométrique pour que les points 3D reconstruits soient surtout sur les boîtes (pas sur le fond). le code est dans LoacteSift&3dpoint.py
+2) M’aider à vérifier si ma reconstruction 3D est cohérente avec les distances réelles (38.5 / 49.5 / 65 cm).
+3) Me proposer des modifications de code **directement sur mon code existant** 
