@@ -18,6 +18,14 @@ Trois boîtes de dimensions et positions connues, posées sur une surface plane 
 | Blanche (motifs arabesques) | 49.5 cm |
 | Noire (couvercle doré) | 65.0 cm |
 
+### Images stéréo acquises
+
+| Image gauche | Image droite |
+|:---:|:---:|
+| ![Image gauche](ProjectImages/IMG_20260410_230157_126.jpg) | ![Image droite](ProjectImages/IMG_20260410_230207_597.jpg) |
+
+> Translation horizontale de 5 cm vers la droite entre les deux prises. On observe le décalage apparent des boîtes — la base de la stéréovision.
+
 ---
 
 ## Pipeline complet
@@ -221,6 +229,10 @@ La caméra gauche est placée à l'origine du repère monde. La caméra droite e
 | Noire | ~0.645 m | 0.650 m | < 1% |
 
 Le nuage de points 3D sépare clairement les trois boîtes dans l'espace, avec les profondeurs cohérentes avec les distances réelles mesurées.
+
+![Nuage de points 3D](nuage_3d.png)
+
+> À gauche : nuage 3D coloré (rose, blanc, noir) — les trois boîtes sont bien séparées en profondeur. À droite : histogramme des profondeurs Z avec les lignes ground truth — les pics correspondent exactement aux distances mesurées.
 
 ---
 
