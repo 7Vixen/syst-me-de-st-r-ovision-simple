@@ -312,6 +312,142 @@ print(f"\nFichier nuage_points.xyz sauvegarde ({len(points_3D_clean)} points) !"
 # ==============================================================
 # 12. VISUALISATION 3D + HISTOGRAMME PROFONDEUR
 # ==============================================================
+
+# ==============================================================
+# 12. VISUALISATION 3D + HISTOGRAMME PROFONDEUR
+# ==============================================================
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+def draw_box_3d(ax, center, half_size, color, label, alpha=0.18):
+    """
+    Dessine une boîte 3D translucide avec label.
+    center    : (cx, cy, cz) — centre dans le repère du scatter
+    half_size : (hx, hy, hz) — demi-dimensions selon les 3 axes du scatter
+    """
+    cx, cy, cz = center
+    hx, hy, hz = half_size
+
+    xs = [cx - hx, cx + hx]
+    ys = [cy - hy, cy + hy]
+    zs = [cz - hz, cz + hz]
+
+    faces = [
+        [[xs[0],ys[0],zs[0]], [xs[1],ys[0],zs[0]], [xs[1],ys[1],zs[0]], [xs[0],ys[1],zs[0]]],
+        [[xs[0],ys[0],zs[1]], [xs[1],ys[0],zs[1]], [xs[1],ys[1],zs[1]], [xs[0],ys[1],zs[1]]],
+        [[xs[0],ys[0],zs[0]], [xs[1],ys[0],zs[0]], [xs[1],ys[0],zs[1]], [xs[0],ys[0],zs[1]]],
+        [[xs[0],ys[1],zs[0]], [xs[1],ys[1],zs[0]], [xs[1],ys[1],zs[1]], [xs[0],ys[1],zs[1]]],
+        [[xs[0],ys[0],zs[0]], [xs[0],ys[1],zs[0]], [xs[0],ys[1],zs[1]], [xs[0],ys[0],zs[1]]],
+        [[xs[1],ys[0],zs[0]], [xs[1],ys[1],zs[0]], [xs[1],ys[1],zs[1]], [xs[1],ys[0],zs[1]]],
+    ]
+
+    poly = Poly3DCollection(faces, alpha=alpha,
+                            facecolor=color, edgecolor=color, linewidth=0.6)
+    ax.add_collection3d(poly)
+    ax.text(cx, cy, cz + hz + 0.005, label,
+            fontsize=8, color=color, ha='center', va='bottom', fontweight='bold')
+
+
+# Dimensions réelles des boîtes (en mètres), converties en demi-dimensions
+# Repère scatter : axe X = X scène, axe Y = Z profondeur, axe Z = -Y (hauteur)
+# → half_x = demi-largeur, half_y = demi-longueur, half_z = demi-hauteur
+BOX_HALF_SIZES = {
+    #              half_x        half_y        half_z (hauteur)
+    'Rose':    (0.0375/2,    0.0375/2,    0.0775/2),   # 3.75×3.75×7.75 cm
+    'Blanche': (0.06/2,      0.06/2,      0.062/2),    # 6×6×6.2 cm
+    'Noire':   (0.078/2,     0.078/2,     0.1167/2),   # 7.8×7.8×11.67 cm
+}
+BOX_COLORS = {
+    'Rose':    'deeppink',
+    'Blanche': 'steelblue',
+    'Noire':   'dimgray',
+}
+
+fig = plt.figure(figsize=(18, 8))
+
+# --- Subplot 1 : Nuage 3D avec boîtes englobantes ---
+ax1 = fig.add_subplot(121, projection='3d')
+
+ax1.scatter(
+    points_3D_clean[:, 0],
+    points_3D_clean[:, 2],
+    -points_3D_clean[:, 1],
+    c=colors,
+    s=8,
+    alpha=0.8
+)
+
+# Dessin des boîtes sur chaque cluster
+for box_name, box_mask in box_masks.items():
+    n_pts = box_mask.sum()
+    if n_pts < 5:
+        print(f"[BOITE] {box_name}: pas assez de points pour la boîte ({n_pts})")
+        continue
+
+    pts_box = points_3D_clean[box_mask]
+
+    # Centre dans le repère du scatter (X, Z_profondeur, -Y_hauteur)
+    cx = np.median(pts_box[:, 0])
+    cy = np.median(pts_box[:, 2])
+    cz = -np.median(pts_box[:, 1])
+
+    hx, hy, hz = BOX_HALF_SIZES[box_name]
+    col = BOX_COLORS[box_name]
+
+    draw_box_3d(ax1, center=(cx, cy, cz), half_size=(hx, hy, hz),
+                color=col, label=box_name, alpha=0.18)
+
+ax1.set_xlabel('X (m)')
+ax1.set_ylabel('Profondeur Z (m)')
+ax1.set_zlabel('Y (m)')
+ax1.set_title(f'Nuage 3D - {len(points_3D_clean)} points')
+
+# --- Subplot 2 : Histogramme Z avec ground truth ---
+ax2 = fig.add_subplot(122)
+z_vals = points_3D_clean[:, 2]
+ax2.hist(z_vals, bins=60, color='steelblue', edgecolor='white', alpha=0.8)
+
+gt_colors_map = {'Rose': 'magenta', 'Blanche': 'gray', 'Noire': 'black'}
+for box_name, gt_z in GT_DISTANCES.items():
+    ax2.axvline(x=gt_z, color=gt_colors_map[box_name], linestyle='--', linewidth=2,
+                label=f'{box_name} GT={gt_z*100:.1f}cm')
+
+ax2.set_xlabel('Profondeur Z (m)')
+ax2.set_ylabel('Nombre de points')
+ax2.set_title('Distribution des profondeurs')
+ax2.legend(fontsize=9)
+ax2.grid(True, alpha=0.3)
+
+plt.suptitle(f'Stereovision - Baseline={BASELINE*100:.0f}cm, fx={mtx_scaled[0,0]:.0f}', fontsize=13)
+plt.tight_layout()
+plt.savefig('nuage_3d.png', dpi=150)
+plt.show()
+
+print("\n=== TERMINE ===")
+print("Fichiers sauvegardes: debug_masque.png, sift_matches.png, nuage_3d.png, nuage_points.xyz")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 fig = plt.figure(figsize=(18, 8))
 
 # --- Subplot 1 : Nuage 3D ---
