@@ -230,7 +230,7 @@ La caméra gauche est placée à l'origine du repère monde. La caméra droite e
 
 Le nuage de points 3D sépare clairement les trois boîtes dans l'espace, avec les profondeurs cohérentes avec les distances réelles mesurées.
 
-![Nuage de points 3D](nuage_3d.png)
+![Nuage de points 3D](Figure_1_avec_voculume.png)
 
 > À gauche : nuage 3D coloré (rose, blanc, noir) — les trois boîtes sont bien séparées en profondeur. À droite : histogramme des profondeurs Z avec les lignes ground truth — les pics correspondent exactement aux distances mesurées.
 
